@@ -4,6 +4,8 @@
 
 Dans un monde saturé de contenus, ce projet propose une application capable de **prédire le succès potentiel d’un film fictif** en se basant sur un ensemble de données réelles de 10 000 films Letterboxd. L’objectif est de comprendre les **facteurs clés de réussite d’un film** (genre, durée, résumé, casting...) et de proposer un outil interactif de prédiction pour les créateurs ou les curieux.
 
+- **Gestion de projet** : [Lien Notion](https://www.notion.so/1ebff21e6f4480938ff6d4996d662b94?v=1ebff21e6f4481abae3a000c3431c604&pvs=4)
+
 ---
 
 ## 📌 Objectifs pédagogiques
