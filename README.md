@@ -93,3 +93,66 @@ Deux approches possibles :
 
 > Projet réalisé dans le cadre du module Open Data – IPSSI
 
+# API de Prédiction de Notes de Films
+
+Cette API permet de prédire la note d'un film en utilisant un modèle d'apprentissage automatique, une analyse OpenAI et des informations sur le budget du film.
+
+## Fonctionnalités
+
+- Prédiction de note de film sur une échelle de 10 points
+- Analyse du titre et de la description via OpenAI (3 points)
+- Analyse des caractéristiques techniques via modèle ML (4 points)
+- Prise en compte du budget (3 points)
+- Interface Swagger pour tester facilement l'API
+
+## Installation
+
+1. Clonez ce dépôt
+2. Installez les dépendances :
+   ```
+   pip install flask flask-restx python-dotenv openai pandas numpy scikit-learn joblib
+   ```
+3. Créez un fichier `.env` à la racine du projet avec votre clé API OpenAI :
+   ```
+   OPENAI_API_KEY=votre_cle_api_ici
+   ```
+
+## Utilisation
+
+1. Lancez l'application :
+   ```
+   python app.py
+   ```
+
+2. Accédez à l'interface Swagger pour tester l'API :
+   ```
+   http://localhost:5001/swagger/
+   ```
+
+3. Utilisez l'endpoint `POST /api/predict` avec un payload JSON comme celui-ci :
+   ```json
+   {
+     "name": "Inception",
+     "description": "Un voleur qui s'infiltre dans les rêves des gens pour voler leurs secrets se voit offrir une chance de retrouver sa vie normale.",
+     "genre": "Science Fiction, Action, Thriller",
+     "annee": 2010,
+     "acteur": "Leonardo DiCaprio, Joseph Gordon-Levitt, Ellen Page",
+     "director": "Christopher Nolan",
+     "duree": 148,
+     "budget": 3
+   }
+   ```
+
+4. L'API renverra une réponse avec :
+   - Note OpenAI (sur 3) basée sur le titre et la description
+   - Note du modèle ML (sur 4) basée sur les caractéristiques techniques
+   - Note du budget (sur 3)
+   - Note totale (sur 10)
+   - Détails explicatifs
+
+## Notes importantes
+
+- Sans clé API OpenAI valide, l'API utilisera des notes aléatoires pour la partie analyse du titre et de la description
+- Le modèle ML doit être présent et accessible via le fichier `movie_rating_model.joblib`
+- L'application utilise le port 5001 pour éviter les conflits avec AirPlay sur macOS
+
