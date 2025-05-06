@@ -32,7 +32,7 @@ Dans un monde saturé de contenus, ce projet propose une application capable de 
 | Composant       | Techno(s) proposées                     |
 |----------------|------------------------------------------|
 | Backend         | Python (Flask / FastAPI)                |
-| Frontend        | React / Streamlit / HTML+JS             |
+| Frontend        | ElectronJS + NextJS                     |
 | Base de données | MongoDB                                 |
 | Modélisation    | Scikit-learn, XGBoost, éventuellement BERT (NLP) |
 | Data Viz        | matplotlib, seaborn, ou Power BI        |
@@ -82,11 +82,6 @@ Deux approches possibles :
 
 ---
 
-## 🧩 Liens utiles
-
-- 🔗 [Dataset Kaggle – 10,000 Movies Letterboxd](https://www.kaggle.com/datasets/ky1338/10000-movies-letterboxd-data)  
-
----
 
 > Projet réalisé dans le cadre du module Open Data – IPSSI
 
