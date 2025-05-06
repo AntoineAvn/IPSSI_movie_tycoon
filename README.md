@@ -1,8 +1,10 @@
-# 🎬 HitMovie Predictor – Prédisez le succès de votre film
+# 🎬 Movie Tycoon IA – Prédisez le succès de votre film
 
 ## 🎯 Objectif du projet
 
 Dans un monde saturé de contenus, ce projet propose une application capable de **prédire le succès potentiel d’un film fictif** en se basant sur un ensemble de données réelles de 10 000 films Letterboxd. L’objectif est de comprendre les **facteurs clés de réussite d’un film** (genre, durée, résumé, casting...) et de proposer un outil interactif de prédiction pour les créateurs ou les curieux.
+
+- **Gestion de projet** : [Lien Notion](https://www.notion.so/1ebff21e6f4480938ff6d4996d662b94?v=1ebff21e6f4481abae3a000c3431c604&pvs=4)
 
 ---
 
@@ -30,8 +32,8 @@ Dans un monde saturé de contenus, ce projet propose une application capable de 
 | Composant       | Techno(s) proposées                     |
 |----------------|------------------------------------------|
 | Backend         | Python (Flask / FastAPI)                |
-| Frontend        | React / Streamlit / HTML+JS             |
-| Base de données | PostgreSQL ou MongoDB                   |
+| Frontend        | ElectronJS + NextJS                     |
+| Base de données | MongoDB                                 |
 | Modélisation    | Scikit-learn, XGBoost, éventuellement BERT (NLP) |
 | Data Viz        | matplotlib, seaborn, ou Power BI        |
 
@@ -41,8 +43,7 @@ Dans un monde saturé de contenus, ce projet propose une application capable de 
 
 Deux approches possibles :
 
-- **Régression** : prédire la note moyenne (`averageRating`) ou le nombre de votes (`numVotes`)
-- **Classification binaire** : prédire si un film est un "succès" (ex : `note > 3.5` et `votes > 10 000`)
+- Prédire si un film est un "succès" (ex : `note > 3.5`) grâce au réalisateur, acteurs, genre, année, durée du film
 
 ---
 
@@ -52,23 +53,21 @@ Deux approches possibles :
   - Titre  
   - Genre(s)  
   - Langue, pays  
+  - Réalisateur(s)
+  - Acteur(s)
   - Durée  
-  - Résumé libre ou généré automatiquement
-- 🔍 **Prédiction du succès** avec affichage visuel (note estimée, probabilité de "hit")
+  - Résumé libre
+- 🔍 **Prédiction du succès** avec un scoring "homemade" (3 points générés par chatGPT pour le titre et la description, 4 points pour notre modél de prédiction et 3 points pour le budget attribué) et un affichage visuel (note estimée, probabilité de "hit")
 - 📊 **Filtres** : genre, pays, année, durée…
 - 📈 **Visualisations** :  
-  - Répartition des notes  
-  - Corrélation entre durée et succès  
-  - Carte des films les plus populaires par pays  
-  - Nuage de mots des synopsis les plus fréquents
+  - Répartition des notes + explications
 
 ---
 
 ## 💡 Bonus possibles
 
-- 🎲 Générateur de pitch automatique avec GPT
-- 🎭 Comparateur de pitchs avec films existants (via TMDB API)
-- 🏆 Classement du film dans des catégories fictives : Arty / Blockbuster / Nanar
+- 🎲 Générateur de pitch automatique
+- 🎥 Générateur de pochette de film
 
 ---
 
@@ -83,13 +82,6 @@ Deux approches possibles :
 
 ---
 
-## 🧩 Liens utiles
-
-- 🔗 [Dataset Kaggle – 10,000 Movies Letterboxd](https://www.kaggle.com/datasets/ky1338/10000-movies-letterboxd-data)  
-- 🔗 [The Movie Database API](https://developer.themoviedb.org/)  
-- 🔗 [OMDb API](https://www.omdbapi.com/)  
-
----
 
 > Projet réalisé dans le cadre du module Open Data – IPSSI
 
