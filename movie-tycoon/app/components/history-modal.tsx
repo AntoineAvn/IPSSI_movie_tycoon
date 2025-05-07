@@ -13,8 +13,11 @@ import {
   Award, 
   User2 as DirectorIcon, 
   Tag as GenreIcon,
-  CalendarIcon
+  CalendarIcon,
+  Filter
 } from "lucide-react"
+import { useState, useMemo } from "react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 type HistoryModalProps = {
   films: Film[]
@@ -22,6 +25,9 @@ type HistoryModalProps = {
 }
 
 export function HistoryModal({ films, onClose }: HistoryModalProps) {
+  const [genreFilter, setGenreFilter] = useState<string>("all")
+  const [noteFilter, setNoteFilter] = useState<string>("all")
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return new Intl.DateTimeFormat("fr-FR", {
@@ -32,6 +38,42 @@ export function HistoryModal({ films, onClose }: HistoryModalProps) {
       minute: "2-digit",
     }).format(date)
   }
+
+  // Extraire tous les genres uniques des films
+  const uniqueGenres = useMemo(() => {
+    const genres = new Set<string>()
+    films.forEach(film => genres.add(film.genre))
+    return Array.from(genres).sort()
+  }, [films])
+
+  // Filtrer les films en fonction des filtres sélectionnés
+  const filteredFilms = useMemo(() => {
+    return films.filter(film => {
+      // Filtre par genre
+      if (genreFilter !== "all" && film.genre !== genreFilter) {
+        return false
+      }
+      
+      // Filtre par note
+      if (noteFilter !== "all") {
+        const note = film.note
+        switch (noteFilter) {
+          case "excellent":
+            return note >= 9
+          case "bon":
+            return note >= 7 && note < 9
+          case "moyen":
+            return note >= 5 && note < 7
+          case "mauvais":
+            return note < 5
+          default:
+            return true
+        }
+      }
+      
+      return true
+    })
+  }, [films, genreFilter, noteFilter])
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
@@ -44,14 +86,72 @@ export function HistoryModal({ films, onClose }: HistoryModalProps) {
           </DialogTitle>
         </DialogHeader>
 
+        {/* Filtres */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <Filter className="h-4 w-4 text-amber-400" />
+              <span className="text-amber-200 text-sm">Filtrer par genre</span>
+            </div>
+            <Select value={genreFilter} onValueChange={setGenreFilter}>
+              <SelectTrigger className="bg-amber-900/60 border-amber-500 text-amber-100">
+                <SelectValue placeholder="Tous les genres" />
+              </SelectTrigger>
+              <SelectContent className="bg-amber-900/90 border-amber-500 text-amber-100">
+                <SelectItem value="all" className="text-amber-100 hover:bg-amber-800/80 focus:bg-amber-800/80">
+                  Tous les genres
+                </SelectItem>
+                {uniqueGenres.map(genre => (
+                  <SelectItem 
+                    key={genre} 
+                    value={genre}
+                    className="text-amber-100 hover:bg-amber-800/80 focus:bg-amber-800/80"
+                  >
+                    {genre}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <Star className="h-4 w-4 text-amber-400" />
+              <span className="text-amber-200 text-sm">Filtrer par note</span>
+            </div>
+            <Select value={noteFilter} onValueChange={setNoteFilter}>
+              <SelectTrigger className="bg-amber-900/60 border-amber-500 text-amber-100">
+                <SelectValue placeholder="Toutes les notes" />
+              </SelectTrigger>
+              <SelectContent className="bg-amber-900/90 border-amber-500 text-amber-100">
+                <SelectItem value="all" className="text-amber-100 hover:bg-amber-800/80 focus:bg-amber-800/80">
+                  Toutes les notes
+                </SelectItem>
+                <SelectItem value="excellent" className="text-amber-100 hover:bg-amber-800/80 focus:bg-amber-800/80">
+                  Excellent (9-10)
+                </SelectItem>
+                <SelectItem value="bon" className="text-amber-100 hover:bg-amber-800/80 focus:bg-amber-800/80">
+                  Bon (7-8.9)
+                </SelectItem>
+                <SelectItem value="moyen" className="text-amber-100 hover:bg-amber-800/80 focus:bg-amber-800/80">
+                  Moyen (5-6.9)
+                </SelectItem>
+                <SelectItem value="mauvais" className="text-amber-100 hover:bg-amber-800/80 focus:bg-amber-800/80">
+                  Mauvais (0-4.9)
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
         <ScrollArea className="h-[60vh] pr-4">
-          {films.length === 0 ? (
+          {filteredFilms.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-amber-200">Vous n&apos;avez pas encore créé de films.</p>
+              <p className="text-amber-200">Aucun film ne correspond à vos critères de filtrage.</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {films.map((film, index) => (
+              {filteredFilms.map((film, index) => (
                 <div 
                   key={film.id} 
                   className="bg-gradient-to-b from-amber-900/40 to-red-900/40 rounded-lg p-4 border-l-4 border-amber-500 hover:border-l-amber-400 transition-all hover:translate-x-1 fade-in"

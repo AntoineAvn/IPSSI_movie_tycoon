@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DollarSign } from "lucide-react"
+import { useEffect, useState } from "react"
 
 // Constantes pour les coûts de production
 const BUDGET_COSTS = {
@@ -37,6 +38,13 @@ type MovieFormProps = {
 }
 
 export function MovieForm({ onSubmit, unlockedGenres, allGenres, currentLevel }: MovieFormProps) {
+  const [directors, setDirectors] = useState<{name: string, popularity?: number}[]>([]);
+  const [actors, setActors] = useState<{name: string, popularity?: number}[]>([]);
+  const [directorsFilteredSuggestions, setDirectorsFilteredSuggestions] = useState<{name: string, popularity?: number}[]>([]);
+  const [actorsFilteredSuggestions, setActorsFilteredSuggestions] = useState<{name: string, popularity?: number}[]>([]);
+  const [showDirectorSuggestions, setShowDirectorSuggestions] = useState(false);
+  const [showActorSuggestions, setShowActorSuggestions] = useState(false);
+
   const defaultValues = {
     name: "",
     description: "",
@@ -53,6 +61,94 @@ export function MovieForm({ onSubmit, unlockedGenres, allGenres, currentLevel }:
     defaultValues,
   })
 
+  // Récupérer la liste des réalisateurs
+  useEffect(() => {
+    fetch('/api/directors/all')
+      .then(response => response.json())
+      .then(data => {
+        console.log("Réalisateurs chargés:", data.length);
+        setDirectors(data.map((director: any) => ({ 
+          name: director.name || director.nom || "",
+          popularity: director.popularity
+        })));
+      })
+      .catch(error => console.error("Erreur lors de la récupération des réalisateurs:", error));
+  }, []);
+
+  // Récupérer la liste des acteurs
+  useEffect(() => {
+    fetch('/api/actors/all')
+      .then(response => response.json())
+      .then(data => {
+        console.log("Acteurs chargés:", data.length);
+        setActors(data.map((actor: any) => ({ 
+          name: actor.name || actor.nom || "",
+          popularity: actor.popularity || actor.films_played
+        })));
+      })
+      .catch(error => console.error("Erreur lors de la récupération des acteurs:", error));
+  }, []);
+
+  // Filtrer les suggestions de réalisateurs
+  const filterDirectors = (value: string) => {
+    if (!value.trim()) {
+      setDirectorsFilteredSuggestions([]);
+      return;
+    }
+    
+    const filtered = directors
+      .filter(director => director.name.toLowerCase().includes(value.toLowerCase()))
+      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+      .slice(0, 10);
+    
+    setDirectorsFilteredSuggestions(filtered);
+  };
+
+  // Filtrer les suggestions d'acteurs
+  const filterActors = (value: string) => {
+    const lastValue = value.split(',').pop()?.trim() || "";
+    
+    if (!lastValue) {
+      setActorsFilteredSuggestions([]);
+      return;
+    }
+    
+    const filtered = actors
+      .filter(actor => actor.name.toLowerCase().includes(lastValue.toLowerCase()))
+      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+      .slice(0, 10);
+    
+    setActorsFilteredSuggestions(filtered);
+  };
+
+  // Sélectionner un réalisateur (approche simplifiée)
+  const selectDirector = (director: string) => {
+    console.log("Réalisateur sélectionné:", director);
+    form.setValue("director", director, { shouldValidate: true });
+    setShowDirectorSuggestions(false);
+  };
+
+  // Sélectionner un acteur (approche simplifiée)
+  const selectActor = (actor: string) => {
+    console.log("Acteur sélectionné:", actor);
+    const currentValue = form.getValues("acteur");
+    
+    // Gestion des acteurs multiples
+    let newValue: string;
+    if (!currentValue) {
+      newValue = actor;
+    } else {
+      const values = currentValue.split(',').map(v => v.trim()).filter(Boolean);
+      const lastPartial = values.pop(); // Enlever la partie en cours de saisie
+      values.push(actor); // Ajouter l'acteur sélectionné
+      newValue = values.join(', ');
+    }
+    
+    console.log("Nouvelle valeur:", newValue);
+    form.setValue("acteur", newValue, { shouldValidate: true });
+    setShowActorSuggestions(false);
+  };
+
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     onSubmit({
       ...values,
@@ -62,6 +158,23 @@ export function MovieForm({ onSubmit, unlockedGenres, allGenres, currentLevel }:
     
     form.reset(defaultValues)
   }
+
+  // Gestion du clic en dehors des suggestions
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!(event.target as Element).closest('.director-suggestions-container')) {
+        setShowDirectorSuggestions(false);
+      }
+      if (!(event.target as Element).closest('.actor-suggestions-container')) {
+        setShowActorSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <Card className="cinema-card border-2 border-amber-500 shadow-xl game-card">
@@ -169,7 +282,35 @@ export function MovieForm({ onSubmit, unlockedGenres, allGenres, currentLevel }:
                   <FormItem>
                     <FormLabel className="text-amber-200 text-xl">Réalisateur</FormLabel>
                     <FormControl>
-                      <Input {...field} className="bg-amber-100/90 border-amber-500 text-amber-950 focus:ring-2 focus:ring-amber-400 transition-all" />
+                      <div className="relative director-suggestions-container">
+                        <Input 
+                          {...field} 
+                          className="bg-amber-100/90 border-amber-500 text-amber-950 focus:ring-2 focus:ring-amber-400 transition-all" 
+                          onChange={(e) => {
+                            field.onChange(e);
+                            filterDirectors(e.target.value);
+                            setShowDirectorSuggestions(true);
+                          }}
+                          onFocus={() => {
+                            filterDirectors(field.value);
+                            setShowDirectorSuggestions(true);
+                          }}
+                        />
+                        {showDirectorSuggestions && directorsFilteredSuggestions.length > 0 && (
+                          <div className="absolute z-10 w-full bg-amber-50 border border-amber-500 rounded-b-lg mt-[-1px] max-h-[200px] overflow-y-auto">
+                            {directorsFilteredSuggestions.map((director, index) => (
+                              <button 
+                                type="button"
+                                key={index} 
+                                className="w-full px-3 py-2 text-left cursor-pointer hover:bg-amber-200 text-amber-950"
+                                onClick={() => selectDirector(director.name)}
+                              >
+                                {director.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -183,12 +324,37 @@ export function MovieForm({ onSubmit, unlockedGenres, allGenres, currentLevel }:
                   <FormItem>
                     <FormLabel className="text-amber-200 text-xl">Acteurs</FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="Ex: Brad Pitt, Emma Stone"
-                        className="bg-amber-100/90 border-amber-500 text-amber-950 focus:ring-2 focus:ring-amber-400 transition-all"
-                      />
+                      <div className="relative actor-suggestions-container">
+                        <Input 
+                          {...field} 
+                          className="bg-amber-100/90 border-amber-500 text-amber-950 focus:ring-2 focus:ring-amber-400 transition-all" 
+                          onChange={(e) => {
+                            field.onChange(e);
+                            filterActors(e.target.value);
+                            setShowActorSuggestions(true);
+                          }}
+                          onFocus={() => {
+                            filterActors(field.value);
+                            setShowActorSuggestions(true);
+                          }}
+                        />
+                        {showActorSuggestions && actorsFilteredSuggestions.length > 0 && (
+                          <div className="absolute z-10 w-full bg-amber-50 border border-amber-500 rounded-b-lg mt-[-1px] max-h-[200px] overflow-y-auto">
+                            {actorsFilteredSuggestions.map((actor, index) => (
+                              <button 
+                                type="button"
+                                key={index} 
+                                className="w-full px-3 py-2 text-left cursor-pointer hover:bg-amber-200 text-amber-950"
+                                onClick={() => selectActor(actor.name)}
+                              >
+                                {actor.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </FormControl>
+                    <p className="text-xs text-amber-200/70 mt-1">Tip: Vous pouvez saisir plusieurs acteurs séparés par des virgules</p>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -5,6 +5,7 @@ import { MovieForm } from "./movie-form"
 import { PlayerSidebar } from "./player-sidebar"
 import { ResultModal } from "../components/result-modal"
 import { HistoryModal } from "./history-modal"
+import { StatsModal } from "./stats-modal"
 import type { Film } from "../lib/types"
 import { toast } from "sonner" // Vous devrez installer cette dépendance: npm install sonner
 
@@ -78,6 +79,7 @@ export function MovieTycoonApp() {
   const [films, setFilms] = useState<Film[]>([])
   const [showResultModal, setShowResultModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
+  const [showStatsModal, setShowStatsModal] = useState(false)
   const [currentFilm, setCurrentFilm] = useState<Film | null>(null)
   const [isLevelUp, setIsLevelUp] = useState(false)
 
@@ -293,7 +295,8 @@ export function MovieTycoonApp() {
         money={money} 
         xp={xp} 
         level={level} 
-        onHistoryClick={() => setShowHistoryModal(true)} 
+        onHistoryClick={() => setShowHistoryModal(true)}
+        onStatsClick={() => setShowStatsModal(true)}
         nextLevelXp={level < XP_PER_LEVEL.length ? XP_PER_LEVEL[level] : undefined}
         currentLevelXp={level > 1 ? XP_PER_LEVEL[level-1] : 0}
       />
@@ -307,6 +310,8 @@ export function MovieTycoonApp() {
       )}
 
       {showHistoryModal && <HistoryModal films={films} onClose={() => setShowHistoryModal(false)} />}
+      
+      {showStatsModal && <StatsModal onClose={() => setShowStatsModal(false)} />}
       
       {/* Animation de level up */}
       {isLevelUp && (

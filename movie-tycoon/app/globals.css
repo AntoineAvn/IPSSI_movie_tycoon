@@ -52,6 +52,34 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Scrollbar personnalisée pour thème cinématographique */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: rgba(245, 222, 179, 0.2);
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #d97706, #92400e);
+  border-radius: 10px;
+  border: 2px solid rgba(245, 222, 179, 0.1);
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #f59e0b, #b45309);
+}
+
+.scrollbar-thumb-amber-600 {
+  color: #d97706;
+}
+
+.scrollbar-track-amber-200 {
+  color: #fcd34d;
+}
+
 /* Animations pour les effets de jeu */
 @keyframes float {
   0% { transform: translateY(0px); }
@@ -180,3 +208,5 @@ body {
   box-shadow: 0 0 15px rgba(255, 165, 0, 0.5);
   border: 2px solid rgba(255, 215, 0, 0.3);
 }
+
+/* Obtenir le contenu actuel */
